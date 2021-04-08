@@ -7,7 +7,7 @@ function createIterator(items){
     const i = 0;
     return {
         next: () => {
-            const done = i < items.lengths;
+            const done = i >= items.length;
             const value = done ? undefined : items[i ++];
             return {
                 done,
@@ -26,13 +26,14 @@ console.log(iterator.next()); // {done: true, value: undefined}
 
 #### for of
 
-一个数据结构只要具有具有 Symbol.iterator 属性，就是可遍历的，可以使用for of，否则会报错
+一个数据结构只要具有具有 Symbol.iterator 属性，就可以使用for of遍历，否则会报错
 
 ```js
 const obj = {
     value: 1
 };
 
+// let可省略
 for (value of obj) {
     console.log(value); // error：obj is not iterable
 }

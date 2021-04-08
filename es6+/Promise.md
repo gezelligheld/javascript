@@ -39,7 +39,7 @@ class Promise {
         this.rejectedCallbacks = [];
 
         try {
-            this.fn(this.resolve, this.reject);
+            fn(this.resolve, this.reject);
         }
         catch (e) {
             this.reject(e);
@@ -153,6 +153,7 @@ Promise.all([Promise.resolve(2), Promise.reject('error'), Promise.resolve(3)]).c
 ```js
 Promise.all = promises => {
     return new Promise((resolve, reject) => {
+        let index = 0;
         const res = [];
         if (!promises.length) {
             return res;
