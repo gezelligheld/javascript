@@ -1,3 +1,4 @@
+// todo
 1. 全局下的this
 
 全局或独立函数中，this指向window

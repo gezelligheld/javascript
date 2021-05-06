@@ -1,42 +1,154 @@
-#### let
+#### 块级作用域
 
-let声明会产生块作用域
-
-```js
-//for语句重复声明的i互不影响
-for(let i=0;i<10;i++){
-    //...
-}
-console.log(i)//undefined
-for(let i=4;i<20;i++){
-    //...
-}
-```
-
-不存在变量提升，导致暂时性死区
+通过 var 声明的变量存在变量提升的特性
 
 ```js
-//let的块作用域将全局的同名变量遮蔽，又存在暂时性死区，所以会报错
-var temp=12;
-if(true){
-    temp = 13; // error!
-    let temp
+if (condition) {
+    var value = 1;
 }
+console.log(value);
 ```
 
-#### const
-
-声明常量，不能修改，无法被垃圾回收
+相当于
 
 ```js
-const obj={a: 1,b: 2};
-obj = null; // 报错
+var value;
+if (condition) {
+    value = 1;
+}
+console.log(value);
 ```
 
-#### var、let和const的区别
+var声明的变量不存在块作用域
 
-- var存在提升，我们能在声明之前使用，函数提升优先于变量提升，函数提升会把整个函数挪到作用域顶部，变量提升只会把声明挪到作用域顶部，let、const因为暂时性死区的原因，不能在声明前使用
+```js
+for (var i = 0; i < 10; i++) {
+    ...
+}
+console.log(i); // 10
+```
 
-- var在全局作用域下声明变量会导致变量挂载在window上，其他两者不会
+ES6引入了块级作用域来控制变量的生命周期，块级作用域存在于
 
-- let和const作用基本一致，但是后者声明的变量不能再次赋值
+- 函数内部
+
+- 花括号之间
+
+#### let和const的特点
+
+1. 不会变量提升
+
+```js
+if (false) {
+    let value = 1;
+}
+console.log(value); // Uncaught ReferenceError: value is not defined
+```
+
+2. 重复声明报错
+
+```js
+var value = 1;
+let value = 2; // Uncaught SyntaxError: Identifier 'value' has already been declared
+```
+
+3. 不绑定全局作用域
+
+```js
+let value = 1;
+console.log(window.value); // undefined
+```
+
+4. const相比于let用于声明常量
+
+```js
+const data = {
+    value: 1
+}
+
+// 没有问题
+data.value = 2;
+data.num = 3;
+
+// 报错
+data = {}; // Uncaught TypeError: Assignment to constant variable.
+```
+
+5. 临时死区，声明之前访问变量会报错
+
+```js
+console.log(typeof value); // Uncaught ReferenceError: value is not defined
+let value = 1;
+```
+
+js引擎扫描代码时，遇到var声明会提升到作用域顶部，遇到let和const声明会放到临时死区中，访问临时死区中的变量会触发运行时错误，只有执行过变量声明语句后，变量才从临时死区中移出，此时才能访问
+
+```js
+var value = "global";
+
+// 例子1
+(function() {
+    console.log(value); // Uncaught ReferenceError: value is not defined
+
+    let value = 'local';
+}());
+```
+
+#### 循环中的块级作用域
+
+```js
+var funcs = [];
+for (var i = 0; i < 3; i++) {
+    funcs[i] = function () {
+        console.log(i);
+    };
+}
+funcs[0](); // 3
+
+var funcs1 = [];
+for (let i = 0; i < 3; i++) {
+    funcs1[i] = function () {
+        console.log(i);
+    };
+}
+funcs1[0](); // 0
+```
+
+显然，用上文提到的特性并不能解释这一现象，实际上for循环中底层存在着特殊的处理逻辑
+
+- 在 for (let i = 0; i < 3; i++) 中，即圆括号之内建立一个隐藏的作用域
+
+- 每次迭代循环时都创建一个新变量，并以之前迭代中同名变量的值将其初始化
+
+```js
+var funcs = [];
+for (let i = 0; i < 3; i++) {
+    funcs[i] = function () {
+        console.log(i);
+    };
+}
+funcs[0](); // 0
+
+// 相当于
+(let i = 0) {
+    funcs[0] = function() {
+        console.log(i)
+    };
+}
+
+(let i = 1) {
+    funcs[1] = function() {
+        console.log(i)
+    };
+}
+
+(let i = 2) {
+    funcs[2] = function() {
+        console.log(i)
+    };
+};
+```
+
+#### 最佳实践
+
+默认使用 const，只有当确实需要改变变量的值的时候才使用 let。这是因为大部分的变量的值在初始化后不应再改变，而预料之外的变量之的改变是很多 bug 的源头
