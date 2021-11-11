@@ -8,6 +8,8 @@ var compose = function(f,g) {
 };
 ```
 
+![](https://p1-jj.byteimg.com/tos-cn-i-t2oaga2asx/gold-user-assets/2019/9/5/16d00f438a16ebfe~tplv-t2oaga2asx-watermark.awebp)
+
 使用组合可以让代码变得简洁，如下
 
 ```js
@@ -35,7 +37,7 @@ var shout = function(x){
 结合律意味着不管你是把 g 和 h 分到一组，还是把 f 和 g 分到一组都不重要
 
 ```js
-var associative = compose(f, compose(g, h)) === compose(compose(f, g), h) // true
+compose(f, compose(g, h)) === compose(compose(f, g), h) === f(g(h(x))) // true
 ```
 
 结合律的一大好处是任何一个函数分组都可以被拆开来，然后再以它们自己的组合方式打包在一起
@@ -46,12 +48,20 @@ var exclaim = function(x) { return x + '!'; };
 var head = function(x) { return x[0]; };
 var reverse = reduce(function(acc, x){ return [x].concat(acc); }, []);
 
-var loudLastUpper = compose(exclaim, toUpperCase, head, reverse);
+// 命令式
+exclaim(toUpperCase(head(reverse())));
 
+// 面向对象
+arr.reverse()
+  .head()
+  .toUpperCase()
+  .log();
+
+// compose
+var loudLastUpper = compose(exclaim, toUpperCase, head, reverse);
 // 或
 var last = compose(head, reverse);
 var loudLastUpper = compose(exclaim, toUpperCase, last);
-
 // 或
 var last = compose(head, reverse);
 var angry = compose(exclaim, toUpperCase);
@@ -113,3 +123,20 @@ var dasherize = compose(join('-'), toLower, trace("after split"), split(' '), re
 ```
 
 由此得知传递给下一个要执行的函数toLower的是一个数组，以此来进行debug
+
+#### Hindly Milner 类型签名
+
+可以明确函数的行为和目的，示例如下
+
+```js
+//  replace :: Regex -> String -> String -> String
+const replace = reg => sub => str => str.replace(reg, sub);
+
+//  map :: (a -> b) -> [a] -> [b]
+var map = curry(function(f, xs){
+  return xs.map(f);
+});
+
+//  head :: [a] -> a
+var head = function(xs){ return xs[0]; }
+```

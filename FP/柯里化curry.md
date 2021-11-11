@@ -15,6 +15,12 @@ increment(2); // 3
 addTen(2); // 12
 ```
 
+柯里化会将一个多元函数转换为一个逐步调用的单元函数
+
+```js
+f(a,b,c) → f(a)(b)(c)
+```
+
 封装一个较为通用的柯里化函数，返回一个函数接受剩余参数，当参数总数超过len时执行原函数
 
 ```js
@@ -23,7 +29,8 @@ function curry(fn, len, ...args) {
         let _args = [...args, ...params];
         if(_args.length >= len){
             return fn.apply(this, _args);
-        }else{
+        }
+        else{
             return curry.call(this, fn, len, ..._args)
         }
     }
@@ -86,4 +93,13 @@ let prop = curry(function(key,obj) {
     return obj[key];
 })
 let names = list.map(prop('name'))
+```
+
+再如，从一个replace中产生新函数，应用于其他场合
+
+```js
+const replace = curry((a, b, str) => str.replace(a, b));
+const replaceSpaceWith = replace(/\s*/);
+const replaceSpaceWithComma = replaceSpaceWith(',');
+const replaceSpaceWithDash = replaceSpaceWith('-');
 ```
