@@ -1,3 +1,36 @@
+#### 引入
+
+如下是一个函子
+
+```js
+const Box = x => ({
+    map: f => Box(f(x)),
+    fold: f => f(x),
+});
+```
+
+由于f(x)的执行可能会产生某种副作用，为了妥善处理副作用的前提下保证是纯函数，声明一个惰性盒子，延迟调用。使用时在没有调用fold之前，函数都是纯的
+
+```js
+const Box = g => ({
+    map: f => Box(() => f(g())),
+    fold: f => f(g()),
+});
+
+const finalPrice = str =>
+    LazyBox(() => str)
+        .map(x => { console.log('str:', str); return x }) // 副作用
+        .map(x => x * 2)
+        .map(x => x * 0.8)
+        .map(x => x - 50)  
+
+const res = finalPrice(100)
+console.log(res)  // => { map: [Function: map], fold: [Function: fold] }
+const res1 = res.fold(x => x); // 'str': 100
+```
+
+这样做的意义是，将代码中不纯的部分剥离出来统一交给fold处理，其余部分保持纯的，保证了核心逻辑是纯的
+
 #### 应用函子（Applicative Functor）
 
 如下，向Box容器中传入一个函数，
@@ -51,3 +84,6 @@ Box(add).apply(Box(1)).apply(Box(2))  // => Box(3) (得到最终的结果)
 - 函子只能映射一个接收单个参数的函数，是应用了一个函数到被容器包裹的值，如Box(1).map(x => x + 1)
 
 - 应用函子可以映射一个接收多个参数的函数，是应用了一个被容器包裹的函数到包裹的值，如Box(x => x + 1).apply(Box(1))
+
+参考:
+1. [函数式编程进阶：应用函子](https://juejin.cn/post/6891820537736069134)
