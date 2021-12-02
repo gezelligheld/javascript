@@ -2,7 +2,7 @@ Promise是js对于异步方法的实现，解决了回调地狱的问题
 
 #### 基本用法
 
-Promise构造函数接受一个函数作为参数，这个函数有两个参数：resolve函数和reject函数
+Promise构造函数接受一个函数作为参数，这个函数有两个参数：resolve函数和reject函数。需要注意的是，Promise创建的时候就已经开始执行其中的代码了，如果想要惰性求值，可以借助箭头函数() => Promise<any>这样的形式
 
 - resolve函数：将状态从pending变为resolved，异步操作成功时调用
 - reject函数：将状态从pending变为rejected，异步操作失败时调用
@@ -135,9 +135,9 @@ Promise.finally = callback => {
 };
 ```
 
-#### Promise.all
+#### Promise.all(iterable)
 
-使用Promise.all收集多个异步结果，同时发起这些Promise，返回一个Promise对象；如果又一个Promise失败，进入catch，并捕捉第一个失败的Promise的结果
+使用Promise.all收集多个异步结果，同时发起这些Promise，返回一个Promise对象；如果又一个Promise失败，进入catch，并捕捉第一个失败的Promise的结果。参数支持迭代器，如数组、Map、Set、含有Symbol.iterator属性的对象等
 
 ```js
 Promise.all([Promise.resolve(2), Promise.resolve(3)]).then(arr => {
@@ -187,7 +187,19 @@ Promise.all = promises => {
 };
 ```
 
-#### Promise.race
+#### Promise.allSettled(iterable)
+
+无论是已兑现的还是已拒绝的promise都会被看作是已敲定(settled)，在所有promise完成后进入then，返回一个带有成功或失败结果的数组
+
+```js
+Promise.allSettled([
+    Promise.resolve(3),
+    new Promise((resolve, reject) => setTimeout(reject, 100, 'foo'))
+]).
+  then((results) => console.log(results)); // [{ status: "fulfilled", value: 3 }, { status: "rejected", reason: "foo" }]
+```
+
+#### Promise.race(iterable)
 
 哪个异步操作先返回了结果就先输出哪个
 
@@ -218,4 +230,26 @@ Promise.race = promises => {
         }
     });
 }
+```
+
+#### Promise.any(iterable)
+
+与Promise.all相反，如果有一个promise成功，就进入then；如果所有promise都失败，就进入catch
+
+```js
+const pErr = new Promise((resolve, reject) => {
+  reject("总是失败");
+});
+
+const pSlow = new Promise((resolve, reject) => {
+  setTimeout(resolve, 500, "最终完成");
+});
+
+const pFast = new Promise((resolve, reject) => {
+  setTimeout(resolve, 100, "很快完成");
+});
+
+Promise.any([pErr, pSlow, pFast]).then((value) => {
+  console.log(value); // '很快完成'
+});
 ```

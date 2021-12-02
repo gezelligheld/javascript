@@ -1,6 +1,6 @@
 #### 迭代器
 
-迭代器是一个具有next方法的对象， 每次调用next都返回一个结果对象{value: any, done: boolean}
+迭代器是一个具有next方法， 每次调用next都返回一个结果对象{value: any, done: boolean}
 
 ```js
 function createIterator(items){
@@ -24,9 +24,15 @@ console.log(iterator.next()); // {done: false, value: 3}
 console.log(iterator.next()); // {done: true, value: undefined}
 ```
 
+使用以下方式判断是否为迭代器
+
+```js
+typeof obj.next === 'function';
+```
+
 #### for of
 
-一个数据结构只要具有具有 Symbol.iterator 属性，就可以使用for of遍历，否则会报错
+一个数据结构只要具有具有 Symbol.iterator 属性，就可以使用for of遍历，否则会报错，这个具有 Symbol.iterator 属性的对象成为可迭代对象
 
 ```js
 const obj = {
@@ -46,6 +52,12 @@ obj[Symbol.iterator] = function() {
 for (value of obj) {
     console.log(value); // 1，2，3
 }
+```
+
+使用以下方式判断是否为可迭代对象
+
+```js
+typeof obj[Symbol.iterator] === 'function'
 ```
 
 有一些数据结构默认内置了Symbol.iterator属性，如数组、Set、Map、类数组对象、Generator对象、字符串，所以可以使用for of遍历

@@ -45,6 +45,22 @@ res.value.then(()  => f.next().value).then(() => f.next().value).then(() => f.ne
 });
 ```
 
+生成器对象既是迭代器，也是可迭代对象
+
+```js
+let aGeneratorObject = function* (){
+    yield 1;
+    yield 2;
+    yield 3;
+}();
+
+typeof aGeneratorObject.next;
+// 返回"function", 因为有一个next方法，所以这是一个迭代器
+
+typeof aGeneratorObject[Symbol.iterator];
+// 返回"function", 因为有一个@@iterator方法，所以这是一个可迭代对象
+```
+
 #### co模块
 
 co模块用于生成器函数的自执行，大概实现如下
