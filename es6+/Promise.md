@@ -1,6 +1,6 @@
 Promise 是 js 对于异步方法的实现，解决了回调地狱的问题
 
-一个 Promise 必然处于以下几种状态之一，待定状态的 promise 要么通过一个值被兑现，要么通过一个原因被拒绝。如果一个 promise 已经被兑现（fulfilled）或被拒绝（rejected），那么也可以说它处于已敲定（settled）状态，或者称为已决议（resolved）
+一个 Promise 必然处于以下几种状态之一，待定状态的 promise 要么通过一个值被兑现，要么通过一个原因被拒绝。如果一个 promise 已经被兑现（fulfilled）或被拒绝（rejected），那么也可以说它处于已敲定（settled）状态
 
 - 待定（pending）: 初始状态
 
@@ -14,7 +14,7 @@ Promise 是 js 对于异步方法的实现，解决了回调地狱的问题
 
 Promise 构造函数接受一个函数作为参数，这个函数有两个参数：resolve 函数和 reject 函数。需要注意的是，Promise 创建的时候就已经开始执行其中的代码了，如果想要惰性求值，可以借助箭头函数() => Promise<any>这样的形式
 
-- resolve 函数：将状态从 pending 变为 resolved，异步操作成功时调用
+- resolve 函数：将状态从 pending 变为 fulfilled，异步操作成功时调用
 - reject 函数：将状态从 pending 变为 rejected，异步操作失败时调用
 
 使用 then 方法可以指定 resolved 状态和 rejected 状态的回调函数
@@ -40,7 +40,7 @@ new Promise(function (resolve, reject) {
 ```js
 const PROMISE_STATUS = {
   PENDING: 'pending',
-  RESOLVED: 'resolved',
+  FULFILLED: 'fulfilled',
   REJECTED: 'rejected',
 };
 
@@ -60,7 +60,7 @@ class Promise {
 
   resolve = (value) => {
     if (this.status === PROMISE_STATUS.PENDING) {
-      this.status = PROMISE_STATUS.RESOLVED;
+      this.status = PROMISE_STATUS.FULFILLED;
       this.value = value;
       this.resolvedCallbacks.each((cb) => {
         cb(value);
@@ -69,10 +69,10 @@ class Promise {
   };
 
   reject = (value) => {
-    if (this.status === PROMISE_STATUS.REJECTED) {
+    if (this.status === PROMISE_STATUS.PENDING) {
       this.status = PROMISE_STATUS.REJECTED;
       this.value = value;
-      this.resolvedCallbacks.each((cb) => {
+      this.rejectedCallbacks.each((cb) => {
         cb(value);
       });
     }
@@ -83,7 +83,7 @@ class Promise {
       this.resolvedCallbacks.push(resolveCallback);
       this.rejectedCallbacks.push(rejectCallback);
     }
-    if (this.status === PROMISE_STATUS.RESOLVED) {
+    if (this.status === PROMISE_STATUS.FULFILLED) {
       resolveCallback(this.value);
     }
     if (this.status === PROMISE_STATUS.REJECTED) {
