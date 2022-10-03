@@ -2,7 +2,7 @@
 
 ##### 默认绑定
 
-全局或独立函数中，this 指向 undefined，非严格模式隐式转换为 window（浏览器环境下）
+全局或独立函数中，浏览器环境下 this 指向 window，严格模式下 指向 undefined；node 环境指向空对象
 
 ```js
 var a = 5;
@@ -119,13 +119,12 @@ var obj = {
 
 ```js
 Function.prototype.bind = function (obj) {
-  var self = this;
-  var obj = obj || window;
-  return function () {
-    obj.fn = self;
-    var result = obj.fn(...arguments);
+  obj = obj || window;
+  return (...rest) => {
+    obj.fn = this;
+    const res = obj.fn(...rest);
     delete obj.fn;
-    return result;
+    return res;
   };
 };
 ```
@@ -133,30 +132,24 @@ Function.prototype.bind = function (obj) {
 实现 apply
 
 ```js
-Function.prototype.apply = function (obj) {
+Function.prototype.apply = function (obj, rest) {
   obj = obj || window;
   obj.fn = this;
-  var result;
-  if (arguments[1]) {
-    result = obj.fn(...arguments[1]);
-  } else {
-    result = obj.fn();
-  }
+  const res = rest ? obj.fn(...rest) : obj.fn();
   delete obj.fn;
-  return result;
+  return res;
 };
 ```
 
 实现 call
 
 ```js
-Function.prototype.call = function (obj) {
+Function.prototype.call = function (obj, ...rest) {
   obj = obj || window;
   obj.fn = this;
-  var arr = [...arguments].slice(1);
-  var result = obj.fn(...arr);
+  const res = rest ? obj.fn(...rest) : obj.fn();
   delete obj.fn;
-  return result;
+  return res;
 };
 ```
 
@@ -236,7 +229,7 @@ var fooReference = {
 };
 ```
 
-范中还提供了获取 Reference 组成部分的方法
+规范中还提供了获取 Reference 组成部分的方法
 
 - GetBase：返回 Reference 的 base value
 
