@@ -81,31 +81,9 @@ console.log(gen.next().value); // 20
 
 #### co 模块
 
-co 模块用于生成器函数的自执行，大概实现如下
+co 模块用于生成器函数的自执行，大概实现如下；其实也是类似于 async 的实现原理，不同的是 async 遇到 reject 会直接返回，不会继续执行下面的 await
 
 ```ts
-function isPromise(fn): boolean {
-  return typeof fn.then === 'function';
-}
-
-function toPromise(fn): Promise {
-  if (isPromise(fn)) {
-    return fn;
-  }
-  if (typeof fn === 'function') {
-    return new Promise((resolve, reject) => {
-      // 非promise的函数注入参数callback，并接收两个参数
-      fn((err, res) => {
-        if (err) {
-          return reject(err);
-        }
-        return resolve(res);
-      });
-    });
-  }
-  return fn;
-}
-
 function run(gen: Generator): Promise<any> {
   return new Promise((resolve, reject) => {
     if (typeof gen === 'function') {
@@ -113,7 +91,8 @@ function run(gen: Generator): Promise<any> {
     }
 
     if (!gen || typeof gen.next !== 'function') {
-      return resolve(gen);
+      resolve(gen);
+      return;
     }
 
     onFulfilled();
@@ -143,14 +122,10 @@ function run(gen: Generator): Promise<any> {
     function next(res) {
       // 整个生成器函数执行完成后resolve
       if (res.done) {
-        return resolve(res.value);
+        resolve(res.value);
+        return;
       }
-      // 如果不是promise而是个回调函数，转为promise
-      const value = toPromise(res.value);
-      if (value && isPromise(value)) {
-        return value.then(onFulfilled, onRejected);
-      }
-      return onRejected('type error');
+      return Promise.resolve(res.value).then(onFulfilled, onRejected);
     }
   });
 }

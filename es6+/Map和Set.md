@@ -29,7 +29,7 @@ myMap.forEach(function (value, key) {
 
 相比于 object，Map 具有更多的优势
 
-- Object 的键均为 Strings 类型，在 Map 里键可以是任意类型
+- Object 的键均为 string 类型，在 Map 里键可以是任意类型
 
 - Object 的尺寸需要计算，Map 的尺寸通过 size 属性可以得知
 

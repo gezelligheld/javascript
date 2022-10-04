@@ -20,7 +20,7 @@
 - 数据类型（number、string、boolean、object、symbol、bigInt、null、undefined）
 - 类型检测（===、typeof、instanceof、Object.prototype.toString.call、constructor）
 - 声明类型（let、const、var）
-- 原型和原型链（构造函数、prototype、constructor）
+- 原型和原型链（构造函数、prototype、\_\_proto\_\_、constructor）
 - 数组（数组方法、类数组、类型化数组，遍历数组 for、for of、for in、扁平化、去重）
 - this（默认绑定，隐式绑定、绑定丢失，显式绑定 apply、call、bind，new，绑定例外）
 - 作用域和作用域链（静态作用域）
@@ -33,7 +33,7 @@
 - 集合和映射（Set、Map、WeakSet、WeakMap，使用场景）
 - 迭代器和可迭代对象（generator、async await）
 - Promise（all、allSettled、race、any，实现）
-- 模块加载方案（amd、cmd、commonjs、esm）
+- 模块加载方案（amd、cmd、commonjs、esm，amd&cmd，commonjs&cmd，esm&commonjs）
 - es6 其他（模板字符串、proxy、箭头函数等）
 - 其他（深浅拷贝、私有变量、乱序、防抖和节流、事件总线等）
 - 函数式编程（柯里化、组合、函子、应用函子、单子）
