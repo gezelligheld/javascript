@@ -95,7 +95,7 @@ class Promise {
 
 #### Promise.resolve
 
-转化为 Promise 对象，状态为 resolved
+转化为 Promise 对象，状态为 fulfilled
 
 ```js
 Promise.resolve('test');

@@ -1,4 +1,30 @@
-柯里化（curry）的概念是，只传递给函数一部分参数来调用它，它将返回一个处理剩余参数的函数，如下
+参数也称为元
+
+```js
+// 二元函数
+const sum = (a, b) => a + b;
+```
+
+偏函数表示部分的应用一个函数，即只传递给函数一部分参数来调用它，它将返回一个处理剩余参数的函数
+
+```js
+// 创建偏函数，固定一些参数
+const partical =
+  (f, ...args) =>
+  // 返回一个带有剩余参数的函数
+  (...moreArgs) =>
+    // 调用原始函数
+    f(...args, ...moreArgs);
+
+const add3 = (a, b, c) => a + b + c; // (c) => 2 + 3 + c
+
+// 部分地将`2`和`3`应用于`add3`，得到一个只有一个参数的函数
+const fivePlus = partical(add3, 2, 3);
+
+fivePlus(4); // 9
+```
+
+柯里化就是自动实现的偏函数，会将一个多元函数转换为一个逐步调用的一元函数
 
 ```js
 var add = function (x) {
@@ -6,18 +32,12 @@ var add = function (x) {
     return x + y;
   };
 };
-
 var increment = add(1);
 var addTen = add(10);
-
 increment(2); // 3
-
 addTen(2); // 12
-```
 
-柯里化会将一个多元函数转换为一个逐步调用的单元函数
-
-```js
+// 相当于
 f(a,b,c) → f(a)(b)(c)
 ```
 
