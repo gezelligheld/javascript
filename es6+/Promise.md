@@ -168,32 +168,31 @@ Promise.all([
 ```js
 Promise.all = (promises) => {
   return new Promise((resolve, reject) => {
+    if (!promises.length) {
+      return resolve([]);
+    }
     let index = 0;
     const res = [];
-    if (!promises.length) {
-      return res;
-    } else {
-      function processVal(i, data) {
-        res[i] = data;
-        if (++index === promises.length) {
-          // 全部Promise执行完成
-          resolve(res);
-        }
+    function processVal(i, data) {
+      res[i] = data;
+      if (++index === promises.length) {
+        // 全部Promise执行完成
+        resolve(res);
       }
+    }
 
-      for (let i = 0; i < promises.length; i++) {
-        if (!(promises[i] instanceof Promise)) {
-          processVal(i, promises[i]);
-        } else {
-          promises[i]
-            .then((data) => {
-              processVal(i, data);
-            })
-            .catch((e) => {
-              // 抛出第一个错误的Promise结果
-              reject(e);
-            });
-        }
+    for (let i = 0; i < promises.length; i++) {
+      if (!(promises[i] instanceof Promise)) {
+        processVal(i, promises[i]);
+      } else {
+        promises[i]
+          .then((data) => {
+            processVal(i, data);
+          })
+          .catch((e) => {
+            // 抛出第一个错误的Promise结果
+            reject(e);
+          });
       }
     }
   });
@@ -236,7 +235,7 @@ Promise.race = (promises) => {
     for (let i = i; i < promises.length; i++) {
       // 一旦有一个Promise返回结果，立刻执行resolve或reject
       if (!(promises[i] instanceof Promise)) {
-        resolve(promises[i]).then(resolve, reject);
+        Promise.resolve(promises[i]).then(resolve, reject);
       } else {
         promises[i].then(resolve, reject);
       }

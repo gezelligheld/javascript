@@ -20,9 +20,7 @@ async function getProcessedData(url) {
 async/await 实际上是对 Generator（生成器）的封装，是一个语法糖。相比于 Generator 有以下不同
 
 - async/await 自带执行器，不需要手动调用 next()就能自动执行下一步
-
 - async 函数返回值是 Promise 对象，而 Generator 返回的是生成器对象
-
 - await 能够返回 Promise 的 resolve/reject 的值
 
 基于以上几点封装 Generator
@@ -31,32 +29,22 @@ async/await 实际上是对 Generator（生成器）的封装，是一个语法�
 function async(generator) {
   return new Promise((resolve, reject) => {
     let g;
-
-    if (!generator || typeof generator.next !== 'function') {
+    if (typeof generator === 'function') {
+      g = generator();
+    }
+    if (!g || typeof g.next !== 'function') {
       resolve(generator);
       return;
     }
 
-    if (typeof generator === 'function') {
-      g = generator();
-    }
-
     function next(val) {
-      let res;
       try {
-        res = g.next(val);
+        const res = g.next(val);
         if (res.done) {
           resolve(res.value);
           return;
         }
-        Promise.resolve(res.value).then(
-          (val) => {
-            next(val);
-          },
-          (e) => {
-            reject(e);
-          }
-        );
+        Promise.resolve(res.value).then(next, reject);
       } catch (e) {
         reject(e);
       }
