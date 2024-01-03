@@ -265,3 +265,54 @@ Promise.any([pErr, pSlow, pFast]).then((value) => {
   console.log(value); // '很快完成'
 });
 ```
+
+#### then
+
+Promise 实例的 then 方法用于 Promise 兑现和拒绝情况的回调函数，返回一个新的 Promise 对象
+
+```js
+then(onFulfilled, onRejected);
+```
+
+- onFulfilled：Promise 被兑现时调用，返回值作为 then 方法返回的 Promise 对象的兑现值
+- onRejected：Promise 被拒绝时调用，返回值作为 then 方法返回的 Promise 对象的拒绝值
+
+> 如果 onFulfilled 和 onRejected 不是一个函数，则内部会被替换为一个恒等函数(x) => x，将值向前传递
+
+总之 onFulfilled 和 onRejected 处理函数之一将被执行，返回的 Promise 状态也可能有三种
+
+- 返回一个值：p 以该返回值作为其兑现值
+
+```js
+Promise.resolve().then(() => 2); // Promise {<fulfilled>: 2}
+```
+
+- 没有返回任何值：p 以 undefined 作为其兑现值
+
+```js
+Promise.resolve().then(() => {}); // Promise {<fulfilled>: undefined}
+```
+
+- 抛出一个错误：p 抛出的错误作为其拒绝值
+
+```js
+Promise.resolve().then(() => throw 123); // Promise {<rejected>: 123}
+```
+
+- 返回一个已兑现的 Promise 对象：p 以该 Promise 的值作为其兑现值
+
+```js
+Promise.resolve().then(() => Promise.resolve(123)); // Promise {<fulfilled>: 123}
+```
+
+- 返回一个已拒绝的 Promise 对象：p 以该 Promise 的值作为其拒绝值
+
+```js
+Promise.resolve().then(() => Promise.reject(123)); // Promise {<rejected>: 123}
+```
+
+- 返回另一个待定的 Promise 对象：p 保持待定状态，并在该 Promise 对象被兑现/拒绝后立即以该 Promise 的值作为其兑现/拒绝值
+
+```js
+Promise.resolve().then(() => new Promise(() => {})); // Promise {<pending>}
+```
